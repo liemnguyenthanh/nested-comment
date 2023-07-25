@@ -22,8 +22,8 @@ const users = {
 }
 
 const comments = {
-  "123123": {
-    _id: '123123',
+  "01": {
+    _id: '01',
     content: `That's a fantastic new app feature. You and your team did an excellent job of incorporating user testing feedback.`,
     timestamp: 123123123,
     user: users['01'],

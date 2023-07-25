@@ -20,6 +20,9 @@ export class Comment {
 
   @Prop()
   right: number;
+
+  @Prop()
+  deep: number;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

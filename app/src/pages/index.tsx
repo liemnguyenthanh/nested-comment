@@ -1,9 +1,9 @@
-import { HomePage } from '@/components/pages'
-import React from 'react'
-import { NextPage } from 'next';
+import { HomePage } from '@/components/pages';
 import { CommentsProvider } from '@/providers/CommentsContext';
+import { NextPage } from 'next';
 
 const Home: NextPage = () => {
+
   return (
     <CommentsProvider>
       <HomePage />

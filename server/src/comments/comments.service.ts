@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './comments.schema';
 import { Model } from 'mongoose';
 import { LIMIT_COMMENT } from 'src/constant';
+import { QueryGetCommentsType } from './comments.types';
 
 @Injectable()
 export class CommentsService {
@@ -15,7 +16,6 @@ export class CommentsService {
     const parentComment = commentData.parent_id ? await this.commentModel.findById(commentData.parent_id).exec() : null;
     commentData.timestamp = new Date().getTime();
     const newComment = new this.commentModel(commentData);
-    console.log(newComment);
 
     if (parentComment) {
       // Shifting comments to the right to create space for the new comment
@@ -25,29 +25,37 @@ export class CommentsService {
       // Inserting the new comment between the parent's left and right boundaries
       newComment.left = parentComment.right;
       newComment.right = parentComment.right + 1;
+      newComment.deep = parentComment.deep + 1
     } else {
       // Inserting the root comment if there's no parent
       const maxRight = await this.commentModel.findOne().sort('-right').exec();
       const rootRight = maxRight ? maxRight.right + 1 : 1;
       newComment.left = rootRight;
       newComment.right = rootRight + 1;
+      newComment.deep = 1
     }
 
     return newComment.save();
   }
 
-  async findAll(id: string): Promise<Comment[]> {
-    const comment = await this.commentModel.findOne({ _id: id })
+  async findAll({ id, page }: QueryGetCommentsType): Promise<Comment[]> {
+    const deep = 1
+    if (id) {
+      const comment = await this.commentModel.findOne({ _id: id })
 
-    if (comment) {
-      const result = await this.commentModel
-        .find({ left: { $gt: comment.left }, right: { $lt: comment.right } })
-        .limit(LIMIT_COMMENT);
+      if (comment) {
+        const result = await this.commentModel
+          .find({ left: { $gt: comment.left }, right: { $lt: comment.right } })
+          .limit(LIMIT_COMMENT);
 
-      return result
+        return result
+      }
     }
 
-    return []
+    return await this.commentModel
+      .find({ deep })
+      .skip(LIMIT_COMMENT * (page - 1))
+      .limit(LIMIT_COMMENT)
   }
 
   findOne(id: number) {

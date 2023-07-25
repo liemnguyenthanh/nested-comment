@@ -5,9 +5,15 @@ import { useContext } from 'react'
 
 export const Comments = () => {
   const { data } = useContext(CommentsContext)
+  const { comments } = data
+  
+  const renderComments = comments && Object.keys(comments).map(item => (
+    <Comment key={comments[item]._id} comment={comments[item]} />
+  ))
+
   return (
-    <div className='mt-4'>
-      {/* <Comment comment={data.comments.} /> */}
+    <div className='mt-4 flex flex-col gap-5'>
+      {renderComments}
     </div>
   )
 }

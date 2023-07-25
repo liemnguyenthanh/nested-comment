@@ -1,6 +1,7 @@
 import { IComment } from '@/types/comments';
 import { PropsWithChildren, createContext, useEffect, useState } from 'react';
-import { Dummy } from '@/dummy'
+import { getCommentsService } from '@/services';
+
 type DataCommentType = {
   comments?: { [key: string]: IComment }
 }
@@ -16,7 +17,7 @@ export const CommentsContext = createContext<CommentsContextType>({
 });
 
 const initialData = {
-  comments: { [Dummy.comments['123123']._id]: Dummy.comments[123123] }
+  comments: {}
 }
 
 export const CommentsProvider = ({ children }: PropsWithChildren) => {
@@ -24,6 +25,16 @@ export const CommentsProvider = ({ children }: PropsWithChildren) => {
   const setData = (newValue: Partial<DataCommentType>) => {
     setState(pre => ({ ...pre, ...newValue }))
   }
+
+  useEffect(() => {
+    const getInit = async () => {
+      const comments = await getCommentsService({ page: 1 })
+
+      if (comments) setData({ comments })
+    }
+
+    getInit()
+  }, [])
 
   return <CommentsContext.Provider value={{ data: state, setData }}>{children}</CommentsContext.Provider>;
 };
